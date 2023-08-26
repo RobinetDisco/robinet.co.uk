@@ -1,12 +1,28 @@
+import { Helmet } from 'react-helmet'
 import Layout from '../components/layout'
 import React from 'react'
 
 const ContactFormPage = () => {
   return (
     <>
+      <Helmet>
+        <script
+          type="text/javascript"
+          src={`https://www.google.com/recaptcha/api.js`}
+        />
+        <script type="text/javascript">
+          function onSubmit(token)
+          {document.getElementById('contact').submit()}
+        </script>
+      </Helmet>
       <Layout pageTitle="Contact the Author">
         <h1>Contact the Author</h1>
-        <form name="contact" method="POST" data-netlify="true">
+        <form
+          id="contact"
+          name="contact"
+          method="POST"
+          data-netlify="true"
+          data-netlify-recaptcha="true">
           <input type="hidden" name="form-name" value="contact" />
           <div className="mb-3">
             <label htmlFor="name" className="form-label">
@@ -57,7 +73,12 @@ const ContactFormPage = () => {
             />
           </div>
           <div className="mb-3">
-            <button type="submit" className="btn btn-primary me-2">
+            <button
+              type="submit"
+              data-sitekey={`${process.env.SITE_RECAPTCHA_KEY}`}
+              data-callback="onSubmit"
+              data-action="submit"
+              className="g-recaptcha btn btn-primary me-2">
               Send
             </button>
             <button type="reset" className="btn btn-secondary">
