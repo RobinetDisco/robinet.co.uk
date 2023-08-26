@@ -1,28 +1,28 @@
 import { Helmet } from 'react-helmet'
 import Layout from '../components/layout'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 const ContactFormPage = () => {
-  const recaptchaSiteKey = process.env.SITE_RECAPTCHA_KEY
+  // const recaptchaSiteKey = process.env.SITE_RECAPTCHA_KEY
 
-  useEffect(() => {
-    window.onSubmit = onSubmit
-  })
+  // useEffect(() => {
+  //   window.onSubmit = onSubmit
+  // })
 
-  const onSubmit = (e) => {
-    console.log('submitting')
-    console.log(e)
-    return true
-  }
+  // const onSubmit = (e) => {
+  //   console.log('submitting')
+  //   console.log(e)
+  //   return true
+  // }
 
   return (
     <>
       <Helmet>
-        <script
+        {/* <script
           key="recaptcha"
           type="text/javascript"
           src="https://www.google.com/recaptcha/api.js"
-        />
+        /> */}
       </Helmet>
       <Layout pageTitle="Contact the Author">
         <h1>Contact the Author</h1>
@@ -80,12 +80,13 @@ const ContactFormPage = () => {
               required={true}
             />
           </div>
+          <div data-netlify-recaptcha="true"></div>
           <div className="mb-3">
             <button
               type="submit"
-              data-sitekey={recaptchaSiteKey}
-              data-callback="onSubmit"
-              data-action="submit"
+              // data-sitekey={recaptchaSiteKey}
+              // data-callback="onSubmit"
+              // data-action="submit"
               className="g-recaptcha btn btn-primary me-2">
               Send
             </button>
