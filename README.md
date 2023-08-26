@@ -1,4 +1,4 @@
-# Audio Amplifier Design website
+# robinet.co.uk website
 
 This site is being developed using GatsbyJS with MDX, KaTeX, and Bootstrap.
 
@@ -83,8 +83,8 @@ Licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 Inter
 This is not strictly necessary, but you may find it useful to be able to preview your changes before pushing them to Github.
 
 1. Install npm: `apt install npm nodejs`
-1. `git clone git@github.com:RobinetDisco/audio-amplifier-design.git`
-1. `cd audio-amplifier-design`
+1. `git clone git@github.com:RobinetDisco/robinet.co.uk.git`
+1. `cd robinet.co.uk`
 1. `npm install && npm run develop`
 1. Go to [localhost:8000](http://localhost:8000) to view the site. Changes you make to the source files while `npm run develop` is running will automatically be reflected in the browser after a short compliation delay.
 
