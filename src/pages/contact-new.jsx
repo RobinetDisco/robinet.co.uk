@@ -9,7 +9,9 @@ const ContactFormPage = () => {
     window.onSubmit = onSubmit
   })
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    console.log('submitting')
+    console.log(e)
     return true
   }
 
@@ -19,7 +21,7 @@ const ContactFormPage = () => {
         <script
           key="recaptcha"
           type="text/javascript"
-          src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`}
+          src="https://www.google.com/recaptcha/api.js"
         />
       </Helmet>
       <Layout pageTitle="Contact the Author">
