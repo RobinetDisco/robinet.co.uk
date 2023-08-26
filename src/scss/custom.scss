@@ -1,0 +1,126 @@
+@import "fonts.scss";
+
+$primary: #087990;
+$secondary: #e9ecef;
+$btn-hover-bg-shade-amount: 30%;
+$btn-hover-bg-tint-amount: 30%;
+
+$nav-link-font-weight: bold;
+$nav-tabs-border-color: $primary;
+$nav-tabs-link-active-border-color: $primary $primary #ffffff;
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
+body,
+.custom-page-wrapper {
+    background-color: $cyan-100;
+}
+
+.custom-header {
+    font-family: 'Monoton', cursive;
+    background-color: $cyan-700;
+    color: white;
+    font-size: 3.5rem;
+    padding: 0.5em 0em;
+
+    a,
+    a:active,
+    a:hover,
+    a:visited {
+        color: white;
+        text-decoration: none;
+    }
+}
+
+.custom-sidebar {
+    background-color: $cyan-200;
+    font-size: 0.8em;
+
+    h2 {
+        font-size: 1.5em;
+    }
+}
+
+.custom-footer {
+    background-color: $cyan-700;
+    color: white;
+    font-family: 'Noto Serif JP', 'Times New Roman', Times, serif;
+    font-size: 0.8em;
+
+    a,
+    a:active,
+    a:hover,
+    a:visited {
+        color: white;
+    }
+}
+
+.container {
+    background-color: white;
+}
+
+@include media-breakpoint-down(sm) {
+    .nav-tabs {
+        border: none;
+        margin-left: calc(0px - #{$grid-gutter-width} / 2);
+        margin-right: calc(0px - #{$grid-gutter-width} / 2);
+
+        .nav-item {
+            display: block;
+            width: 100%;
+
+            .nav-link {
+                background-color: $cyan-100;
+                border: 0px;
+                border-radius: 0px;
+                margin-bottom: 0px;
+                transition: none;
+            }
+
+            .nav-link:hover {
+                background-color: $cyan-300;
+                margin-bottom: 0px;
+            }
+
+            .nav-link.active {
+                background-color: $primary;
+                color: #ffffff;
+            }
+        }
+    }
+}
+
+@media print {
+    .container {
+        width: 100%;
+        max-width: unset;
+    }
+
+    .svg-wrapper {
+        width: 100%;
+        max-width: unset !important;
+    }
+
+    a,
+    a:active,
+    a:hover,
+    a:visited {
+        color: $body-color;
+        text-decoration: none;
+    }
+
+    .custom-footer {
+        background-color: unset;
+        color: $body-color;
+        font-family: $font-family-base;
+        font-size: 1em;
+
+        a,
+        a:active,
+        a:hover,
+        a:visited {
+            color: $body-color;
+            text-decoration: none;
+        }
+    }
+}

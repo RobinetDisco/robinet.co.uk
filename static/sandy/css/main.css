@@ -1,0 +1,39 @@
+body { 
+    background-color: #ffffff; 
+    font-family: Verdana, Arial, sans-serif; 
+    color: #000000; 
+}
+
+div#main {
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+    background-color: #ffeedd;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+div.photo {
+    text-align: center;
+}
+
+div.photo img { border: 1px solid #000000; margin: 5px; padding: 5px; }
+
+.caption {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.subcaption {
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+a, a:link, a:visited, a:active { 
+    color: #663300;
+}
+
+a:hover {
+    color: #cc6600;
+}

@@ -1,0 +1,193 @@
+---
+title: Audio Amplifier with Defined Output Impedance
+---
+
+import fig1 from '../images/fig1.svg'
+import fig2 from '../images/fig2.svg'
+import fig3 from '../images/fig3.svg'
+import fig4 from '../images/fig4.svg'
+import fig5 from '../images/fig5.svg'
+import fig6 from '../images/fig6.svg'
+import fig7 from '../images/fig7.svg'
+import SVGImage from '../components/svg-image.js'
+import UpArrow from '../images/up-arrow.svg'
+
+## Introduction
+
+This development arose from a need to design an amplifier having a finite and well-defined output impedance, in order to tune the impedance to the optimum value for a given loudspeaker. This topic is discussed fully in [appendix A](#appendix-a--loudspeaker-load-matching). To create such a defined output impedance, what is really required is a current amplifier with an appropriate amount of feedback. The conventional approach to achieving a current amplifier is to take a normal voltage amplifier, and derive voltage feedback by sensing the output current through a resistor in series with the load. There are two main problems with this technique; power is wasted in the resistor, and bridging of two amplifiers is rendered virtually impossible (among the benefits of bridge working are the cancelling of even harmonics, and the ability to produce greater power output from a given supply voltage). The present design avoids both of these problems.
+
+## The Principle
+
+The diagram below shows a current-controlled current-transactor ($$CCCT$$), of fixed current-gain, $$B$$.
+An ideal $$CCCT$$ is, in effect, an amplifier having zero input impedance and infinite output impedance.
+
+<SVGImage
+  svg={fig1}
+  href="/pdfs/fig1.pdf"
+  alt="Figure 1"
+  caption="Fig. 1"
+  maxWidth="500px"
+/>
+
+When current feedback is applied from the load, it will easily be seen (by setting the input current to zero), that the output impedance is:
+
+$$
+R_o = {R_f \over B}
+$$
+
+If the current gain ($$B$$) were say, 1000, then with $$R_f$$=470 Ohms, the output impedance would be a reasonable 0.47 Ohms. It has to be admitted that this does not represent a very large damping factor. However, damping factor is a parameter which looks good in a specification sheet, but which has little objective reality. Consider that in a realistic situation, the output impedance is in series with the DC resistance of the voice-coil, which is likely to be about 6 Ohms, and also in series with the impedance of the cable, not to mention any crossover components. Although such a low value of $$R_f$$ represents a near approach to a voltage amplifier, by using larger values of $$R_f$$, other values of output impedance can be obtained, including almost infinity (i.e. pure current-drive).
+
+## Implementation
+
+What is required is a high-gain linear current amplifier. Consider the well-known current mirror,
+which is a staple of integrated circuit design, as shown in Figure 2:
+
+<SVGImage
+  svg={fig2}
+  href="/pdfs/fig2.pdf"
+  alt="Figure 2"
+  caption="Fig. 2"
+  maxWidth="250px"
+/>
+
+If $$R_1$$ and $$R_2$$ are equal, and the transistors are well matched, then the output current, $$I_2$$ will be equal to the input current, $$I_1$$. However, merely decreasing $$R_2$$ will not result in accurate current amplification, because the collector currents and hence the base-emitter voltages will vary in a non-linear fashion. I suggest that what is required is something that I will call an 'amplifying current mirror' as shown in figure 3 below:
+
+<SVGImage
+  svg={fig3}
+  href="/pdfs/fig3.pdf"
+  alt="Figure 3"
+  caption="Fig. 3"
+  maxWidth="350px"
+/>
+
+It will be seen that the output current, $$I_{out}$$ is now (to a close approximation): $$I_{in} \times {R_1}/{R_e}$$ (see [appendix B](#appendix-b--amplifying-current-mirror-analysis)). By combining a complementary pair of these amplifying mirrors, we have the basis of a linear power amplifier, the output current being the difference between the negative and positive current drives. In a practical circuit, $$Q_1$$ and $$Q_2$$ would need to share the same substrate as in an integrated circuit, in order to achieve the necessary close matching, and $$Q_3$$ would need to be a compound, similar to the Quad triples, in order to provide the necessary power gain.
+
+In order for this circuit to be useful for audio, we need to split the incoming signal into negative and positive halves. The simplest, and probably the most effective way, is to use a fairly conventional but low-powered class-B stage, as shown below:
+
+<SVGImage
+  svg={fig4}
+  href="/pdfs/fig4.pdf"
+  alt="Figure 4"
+  caption="Fig. 4"
+  maxWidth="350px"
+/>
+
+Note that $$R_s$$ provides a suitable point for the application of the necessary current feedback, since it is a low-impedance node. The full analysis of the composite amplification scheme appears in [appendix C](#appendix-c--composite-amplifier-analysis). Because the output current of the class-B transistors drops to zero during alternate half-cycles, we need to ensure that the output stage current does not fall below some minimum value, in order to avoid switch-off distortion. The solution to this problem, I believe, was first suggested by Peter Blomley [[1]](#references). Note that his design, however, was in essence, a conventional voltage amplifier. To achieve the goal of non-switching class-B in the present design, it is only necessary to make $$I_2$$ in Figure 3 slightly smaller than $$I_1$$. The output quiescent current is not, in fact, very critical, as there is no equivalent of the class-B over-biasing problem, as identified by Douglas Self. Mr. Self points out that while there is a minimum bias current required to avoid crossover distortion, any further increase in bias current will worsen the distortion performance; see reference [[2]](#references).
+
+## Practical Circuit
+
+Figure 5, (below) shows the circuit of an amplifier employing the approach outlined above.
+
+<SVGImage
+  svg={fig5}
+  href="/pdfs/fig5.pdf"
+  alt="Figure 5"
+  caption="Fig. 5"
+  maxWidth="100%"
+/>
+
+## Circuit Description
+
+I make no apologies for the inclusion of an operational amplifier. Although the hi-fi purists will throw up their hands in horror, the industry-standard NE5534 is a top-quality amplifier with vanishingly small THD figures, and is employed in some top-flight mixing consoles. $$D_2$$ and $$D_3$$ provide the bias for the class-B splitter stage, and $$R_{13}$$ allows for adjustment of this current. This stage is only a minor contributor to the distortion, since it operates at a very low power, and does not therefore suffer from the thermal problems that afflict large-scale class-B stages. The specified current mirrors $$Q_6$$ and $$Q_7$$ (BCV61 and BCV62) are only available as surface-mount devices, although most of the circuit, of necessity, consists of through-hole components. Possible alternatives are Toshiba 2SC3381 and 2SA1349, which are through-hole types. Because the voltage-swing at the collectors of $$Q_4$$ and $$Q_7$$ is small compared to the supply voltage, $$R_{16}$$ and $$R_9$$/$$R_{17}$$ are sufficient to serve as the current-sources shown in figure 3. The output transistors are the excellent MJL1302 and MJL3281, which are quite robust, and show a reasonably sustained beta as the collector current is increased. The output transistors are doubled in this design, partly to increase robustness, but also to reduce distortion when working into low-resistance loads. The resistors marked SOT1 and SOT2, are 'select-on-test' components fitted during the setting up procedure. I would not recommend trimmers for this purpose, as long-term drift in this design is quite unlikely and trimmer potentiometers can have questionable reliability.
+
+## Performance
+
+For the circuit as shown, the output impedance is approximately 0.5 Ohms, and the voltage gain into an 8-Ohm load is about 5, or 14 dB. A straightforward preamplifier will be necessary to bring the gain up to a standard 30 dB. Alternatively, the first-stage gain can be increased by adding a simple attenuator between pin 6 and pin 2 of the op-amp, albeit with a slight increase in THD and output DC offset.
+
+The setting-up procedure is as follows: apply a short circuit across $$D_2$$ and $$D_3$$ (i.e. SOT2 ($$R_{13}$$) set to 0). Monitor the voltage across $$R_2$$ (or $$R_{26}$$) and select SOT1 ($$R_9$$) to give a reading of approximately 4 mV, which indicates a quiescent current of 40 mA in the output transistors. A value of 500 to 1000 Ohms is typical. Then, after removing the short across $$D_2$$ and $$D_3$$, check that the output current rises to no more than about 120 mA; if it is greater than this, use SOT2 ($$R_{13}$$) to throttle-back the current to not less than 80 mA.
+
+Several examples of this circuit have been built, and the performance is repeatable. At an output of 1 Watt into an 8-Ohm load, the THD at 1 Khz is below 0.01%, rising to 0.02% at 40 kHz (the relatively flat THD curve is a feature of current feedback). Prior to the onset of clipping (nearly 100 Watts into 8 Ohms), the THD falls to around 0.003%, which is more or less at the limit of my measuring instrument (Neutrik A1). For the fastidious, better THD figures can be obtained by slight adjustment of $$R_5$$ or $$R_{22}$$, by shunting one or the other with a resistor much larger than 100 Ohms; this is somewhat easier than adjusting $$R_2$$ or $$R_{26}$$ (0.1 Ohms), which should be as close a tolerance as feasible (1% or better). With a 4-Ohm load, the distortion performance is only slightly worse than with an 8-Ohm load. Recovery from overload is clean, and does not exhibit hangover effects (this is where, when the amplifier is driven into saturation, the output 'sticks' to the power rails after the drive has ceased). Accidental output short-circuits can be tolerated, because the current capability is limited, quite unlike a conventional voltage amplifier, which will attempt to supply current until it bursts. However, if sustained working into very low loads is envisaged, some form of load-line protection, as first suggested by Arthur Bailey [[3]](#references) is advisable. A possible point to apply load-line limiting would be across $$R_5$$ and $$R_{22}$$. The output offset voltage should typically be a good deal less than the 50 mV normally considered acceptable, so that no form of servo is necessary. Note, also that because of the finite output impedance, no output inductor is required, thus saving space and cost.
+
+## Conclusion
+
+In addition to achieving the primary objective of a variable-impedance audio amplifier, this investigation has resulted in a design methodology capable of producing a high-quality amplifier of moderate cost and complexity. The only downside is the requirement for closely-matched current-mirror transistors, and close-tolerance low-ohm resistors. The setting-up procedure is fairly straightforward and does not require specialized equipment, although for final optimization a harmonic distortion meter is desirable.
+
+## Appendix A - Loudspeaker Load Matching
+
+Conventional wisdom states that the output resistance of an ideal audio amplifier should be zero. Part of the reason for this is the existence of the parameter known as Damping Factor (DF). This is usually defined as the ratio of the nominal load impedance to the amplifier output impedance; thus for an output impedance of 0.1 Ohms, and a load of 8 Ohms, the damping factor would be 80. Damping factor is usually quoted with pride in amplifier specifications, on the grounds that an amplifier with a DF of 1000 must be better that one with only 100. Damping factor is thought to be instrumental in controlling the motion of the speaker cone, the implication being that a large damping factor (i.e. a very low output impedance) exerts an iron grip over the speaker cone. In fact, its influence is marginal in a realistic situation, in that the output impedance is in series with the DC resistance of the voice-coil, which in the case of an 8-Ohm speaker, is likely to be about 6 Ohms; and also in series with the impedance of the cable, not to mention any crossover components. Also consider what happens if the speaker is already over-damped; no value of output impedance can do anything to correct this situation. Another reason usually given for designing for very low output impedance, is that variations in the speaker impedance are suppressed, resulting in a flat voltage-response curve. But it is not obvious, to me at any rate, that speakers are voltage operated; one would think that a coil suspended in a magnetic field should be current-driven. But I am sure that the reality is more complex than this.
+
+Returning to the subject of damping, it is quite possible for a loudspeaker driven from a voltage source to find itself over-damped. Daniel J. Tomcik [[4]](#references), who was the chief electronics engineer at Electro-Voice, reported as far back as 1954, that over-damping can result in a loss of bass response, and cause inferior transient performance. Tomcik further proposed that the amplifier output impedance should be adjustable, in order to achieve critical damping of a loudspeaker; that is, the response to a step waveform should show no overshoot and minimal settling time. The idea has considerable merit, but was not exploited at the time, possibly because of the difficulty of making a stable, variable impedance amplifier using transformer-coupled valve technology. Also, modern loudspeakers rarely consist of a single driver unit, and the presence of crossover components further complicates matters. In this regard, there is much to be said for multi-amplification, in which each driver has a dedicated amplifier, together with a restricted frequency spectrum, which can then be tailored for optimum damping of each loudspeaker. It is also worth noting at this point, that valve amplifiers typically have an output impedance in the region of 0.1 to 1 Ohm, which may account, in part, for the “valve sound” favoured by many commentators, which is thought to impart a 'warmth' to the music (although part of this may be due to largely unavoidable even-harmonic distortion).
+
+A possible approach to obtaining a flat power response (as opposed to a flat current or voltage response) lies in the Maximum Power Transfer theorem. Simply stated, if the load resistance matches the source resistance, then the power delivered to the load is at a maximum. Furthermore, the power falls off relatively slowly either side of the peak as the load impedance rises. As an illustration, consider the case where the load doubles from 8 Ohms to 16 Ohms. With a pure voltage source, the power will fall to half, or 3 dB. With an 8-Ohm source, the power will fall by 11%, or only about -0.5 dB. There seems the possibility, therefore, that a non-zero output impedance can assist in smoothing out the frequency response; almost all loudspeakers have an impedance curve showing peaks and dips. The correct choice of amplifier output impedance can turn both peaks and dips into shallow response troughs, which are less audible. It is suggested that a good starting-point might be to set the amplifier output impedance at the geometric mean of the minimum and maximum loudspeaker impedances. Note that this approach could not be implemented simply by putting a resistor in series with the output, because of the consequent waste of power and cost.
+
+## Appendix B - Amplifying Current Mirror Analysis
+
+<SVGImage
+  svg={fig6}
+  href="/pdfs/fig6.pdf"
+  alt="Figure 6"
+  caption="Fig. 6"
+  maxWidth="350px"
+/>
+
+Assumptions:
+
+$$R_1 = R_2 = R$$
+
+$$V_{be1} = V_{be2}$$
+
+$$I_B(Q_3) \ll I_1$$
+
+Then:
+
+$$(I_{in}+I_1)R=I_2R+(I_{out}+I_2)R_e$$
+
+Thus:
+
+$$I_{out} = {RI_{in} \over R_e} + {RI_1 \over R_e} - I_2 (1 + {R \over R_e})$$
+
+If $$R \gg R_e$$ (typically 1000 times greater) then:
+
+$$I_{out} = {R \over R_e} (I_{in} + (I_1 - I_2))$$
+
+The constant term $$(I_1 - I_2)$$ represents the output quiescent current when $$I_{in}$$ is zero. The current gain is (to a close approximation) $$R/R_e$$.
+
+## Appendix C - Composite Amplifier Analysis
+
+<SVGImage
+  svg={fig7}
+  href="/pdfs/fig7.pdf"
+  alt="Figure 7"
+  caption="Fig. 7"
+  maxWidth="450px"
+/>
+
+Assumptions:
+
+$$R_f \gg R_L$$
+
+$$B \gg 1$$
+
+$${V_{in} \over R_s} = I_f + I_a$$
+
+$$I_f = {(V_{out} - V_{in}) \over R_f}$$
+
+$$V_{out} = BI_a R_L\text{, Therefore } I_a = {V_{out} \over BR_L}$$
+
+$${V_{in} \over R_s} = {V_{out} \over BR_L} + {V_{out} \over R_f} - {V_{in} \over R_f}$$
+
+$$V_{out} ({1 \over BR_L} + {1 \over R_f}) = V_{in} ({1 \over R_s} + {1 \over R_f})$$
+
+$$V_{out} ({R_f + BR_L \over BR_l R_f}) = V_{in} {(R_f + R_s) \over R_s R_f}$$
+
+Dividing both sides by $$R_f$$: The voltage gain, $$G_v$$ is given by:
+
+$$G_v = {V_{out} \over V_{in}} = {(R_f + R_s) \over R_s} \times {BR_L \over (R_f + BR_L)} = {(R_F + R_s) \over R_s} \times {R_L \over (R_L + {R_f \over B})}$$
+
+The term $${R_f \over B}$$ can be identified as the output resistance, $$R_0$$, so we may write:
+
+$$G_v = (1 + {R_f \over R_s}) \times {R_L \over (R_L + R_o)}$$
+
+The second term will be recognized as the power transfer equation, so this is in effect a voltage amplifier with a gain of $$1 + {R_f \over R_s}$$ in series with a pure resistance, $$R_o$$. It will be seen that if $$R_L \gg R_o$$, then this becomes a voltage amplifier, whereas if $$R_o$$ is large (i.e. $$R_f \Rightarrow \infty$$), then a current amplifier results. A special case is when $$R_o = R_L$$; this results in the maximum power being transferred to the load.
+
+## References
+
+1. Blomley, Peter. 'New approach to class B amplifier design' _Wireless World_, Feb. 1972, pp 57-61 and _Wireless World_, Mar. 1972, pp 127-131
+2. Self, Douglas _'Audio Power Amplifier Design Handbook'_ Chapter 6: “The output stage”, pp 138,139
+3. Bailey, Arthur R. 'Output transistor protection in A.F. amplifiers' _Wireless World_, June 1968, pp 154-156
+4. Tomcik, Daniel J. 'Missing Link in Speaker Operation' _Radio Electronics_, Dec 1954 and Jan 1955. (A link to this article is available via the [Wayback Machine](https://web.archive.org/web/20110131110334/http://www.paulspeltz.com/tomcik/index.html))
+
+<a href="#top" className="d-print-none">
+  <img src={UpArrow} className="me-2" height="15" width="15" alt="" />
+  Back to top
+</a>
