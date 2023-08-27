@@ -66,7 +66,7 @@ const ContactFormPage = () => {
             required={true}
           />
         </div>
-        <ReCAPTCHA sitekey="{process.env.GATSBY_RECAPTCHA_KEY}" />
+        <ReCAPTCHA sitekey={process.env.GATSBY_RECAPTCHA_KEY} />
         <div className="mb-3">
           <button type="submit" className="btn btn-primary me-2">
             Send
