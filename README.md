@@ -87,7 +87,3 @@ This is not strictly necessary, but you may find it useful to be able to preview
 1. `cd robinet.co.uk`
 1. `npm install && npm run develop`
 1. Go to [localhost:8000](http://localhost:8000) to view the site. Changes you make to the source files while `npm run develop` is running will automatically be reflected in the browser after a short compliation delay.
-
-## Deploy the site to review
-
-The site is being deployed automatically to [Gatsby Cloud](https://www.gatsbyjs.com/cloud/). When you commit a change and push it to Github, the change is automatically detected and a new build is created. After a few minutes your changes will be published to [audioamplifierdesign.gtsb.io](https://audioamplifierdesign.gtsb.io). Note that this site is password protected and for testing/review purposes only.
