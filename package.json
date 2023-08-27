@@ -33,6 +33,7 @@
     "nodemailer": "^6.7.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-google-recaptcha": "^3.1.0",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.33.1",
     "remark-math": "^3.0.1",
