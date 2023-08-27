@@ -1,5 +1,4 @@
 module.exports = {
-  pathPrefix: '/audio',
   siteMetadata: {
     siteUrl: 'https://www.robinet.co.uk',
     title: "John's Technical Musings",
