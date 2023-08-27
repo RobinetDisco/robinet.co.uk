@@ -15,7 +15,7 @@ module.exports = {
       options: {
         remarkPlugins: [require('remark-math')],
         defaultLayouts: {
-          default: require.resolve('./src/components/mdx-layout.js'),
+          default: require.resolve('./src/components/mdx-layout.jsx'),
         },
       },
     },
