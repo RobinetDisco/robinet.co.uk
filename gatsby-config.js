@@ -1,3 +1,5 @@
+import remarkMath from 'remark-math'
+
 module.exports = {
   siteMetadata: {
     siteUrl: 'https://www.robinet.co.uk',
@@ -14,7 +16,7 @@ module.exports = {
       resolve: 'gatsby-plugin-mdx',
       options: {
         mdxOptions: {
-          remarkPlugins: ['remark-math'],
+          remarkPlugins: [remarkMath],
         },
       },
     },
