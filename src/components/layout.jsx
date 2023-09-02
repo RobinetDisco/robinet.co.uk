@@ -68,14 +68,14 @@ export default function Layout({ pageTitle, children }) {
               <div className="col">
                 <span xmlnsdct="http://purl.org/dc/terms/" property="dct:title">
                   All designs and other content on this website
-                </span>
-                by
+                </span>{' '}
+                by{' '}
                 <span
                   xmlnscc="http://creativecommons.org/ns#"
                   property="cc:attributionName">
                   John Howard
-                </span>
-                are licensed under a
+                </span>{' '}
+                are licensed under a{' '}
                 <a
                   rel="license"
                   href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
