@@ -1,4 +1,9 @@
-module.exports = {
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import remarkMath from 'remark-math'
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+const config = {
   siteMetadata: {
     siteUrl: 'https://www.robinet.co.uk',
     title: "John's Technical Musings",
@@ -14,7 +19,7 @@ module.exports = {
       resolve: 'gatsby-plugin-mdx',
       options: {
         mdxOptions: {
-          remarkPlugins: [import('remark-math')],
+          remarkPlugins: [remarkMath],
         },
       },
     },
@@ -22,7 +27,7 @@ module.exports = {
       resolve: 'gatsby-source-filesystem',
       options: {
         name: 'images',
-        path: './src/images/',
+        path: `${__dirname}/src/images/`,
       },
       __key: 'images',
     },
@@ -30,9 +35,11 @@ module.exports = {
       resolve: 'gatsby-source-filesystem',
       options: {
         name: 'pages',
-        path: './src/pages/',
+        path: `${__dirname}/src/pages/`,
       },
       __key: 'pages',
     },
   ],
 }
+
+export default config
