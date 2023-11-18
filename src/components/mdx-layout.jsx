@@ -53,8 +53,8 @@ const components = {
   },
 }
 
-export default function MdXLayout(props) {
-  const pageTitle = props.pageContext.frontmatter.title
+export function MDXLayout(props) {
+  const pageTitle = props.pageContext?.frontmatter?.title
 
   return (
     <MDXProvider components={components}>

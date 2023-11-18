@@ -1,6 +1,7 @@
 import React from 'react'
 import { Helmet } from 'react-helmet'
 import { Link, withPrefix } from 'gatsby'
+import ccImage from '../images/by-nc-sa_4_88x31.png'
 
 import '../scss/custom.scss'
 
@@ -91,7 +92,7 @@ export default function Layout({ pageTitle, children }) {
                   <img
                     alt="Creative Commons License"
                     style={{ borderWidth: 0 }}
-                    src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"
+                    src={ccImage}
                     className="float-end"
                   />
                 </a>
