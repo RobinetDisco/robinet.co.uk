@@ -1,6 +1,7 @@
 import React from 'react'
 import { Helmet } from 'react-helmet'
 import { Link, withPrefix } from 'gatsby'
+import ccImage from '../images/by-nc-sa_4_88x31.png'
 
 import '../scss/custom.scss'
 
@@ -68,14 +69,14 @@ export default function Layout({ pageTitle, children }) {
               <div className="col">
                 <span xmlnsdct="http://purl.org/dc/terms/" property="dct:title">
                   All designs and other content on this website
-                </span>
-                by
+                </span>{' '}
+                by{' '}
                 <span
                   xmlnscc="http://creativecommons.org/ns#"
                   property="cc:attributionName">
                   John Howard
-                </span>
-                are licensed under a
+                </span>{' '}
+                are licensed under a{' '}
                 <a
                   rel="license"
                   href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
@@ -91,7 +92,7 @@ export default function Layout({ pageTitle, children }) {
                   <img
                     alt="Creative Commons License"
                     style={{ borderWidth: 0 }}
-                    src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"
+                    src={ccImage}
                     className="float-end"
                   />
                 </a>
