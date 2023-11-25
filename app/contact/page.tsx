@@ -1,11 +1,15 @@
-import Layout from '../components/layout'
 import React from 'react'
-import ReCAPTCHA from 'react-google-recaptcha'
+// import ReCAPTCHA from 'react-google-recaptcha'
 
-const ContactFormPage = () => {
+export const metadata = {
+  title: 'Contact the Author',
+}
+
+export default function ContactFormPage() {
   return (
-    <Layout pageTitle="Contact the Author">
+    <>
       <h1>Contact the Author</h1>
+      <p>WARNING: RECAPTCHA IS DISABLED!</p>
       <form
         name="contact"
         method="POST"
@@ -61,13 +65,13 @@ const ContactFormPage = () => {
           <textarea
             name="message"
             id="message"
-            rows="5"
+            rows={5}
             className="form-control"
             required={true}
           />
         </div>
         <div className="mb-3">
-          <ReCAPTCHA sitekey={process.env.GATSBY_RECAPTCHA_KEY} />
+          {/* <ReCAPTCHA sitekey={process.env.GATSBY_RECAPTCHA_KEY} /> */}
         </div>
         <div className="mb-3">
           <button type="submit" className="btn btn-primary me-2">
@@ -78,8 +82,6 @@ const ContactFormPage = () => {
           </button>
         </div>
       </form>
-    </Layout>
+    </>
   )
 }
-
-export default ContactFormPage
