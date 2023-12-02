@@ -1,11 +1,9 @@
-@import 'fonts.scss';
-
 .katex-inline {
   .katex {
     font-size: 1.2rem;
 
     .text {
-      font-family: $font-family-sans-serif;
+      font-family: var(--font-roboto);
       font-size: 1rem;
     }
 

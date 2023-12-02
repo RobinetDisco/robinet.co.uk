@@ -1,12 +1,10 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-// import { Inter } from 'next/font/google'
 import 'katex/dist/katex.min.css'
 import './scss/custom.scss'
 import NavItems from './components/nav-items'
-
-// const inter = Inter({ subsets: ['latin'] }) // TODO is this better than the fonts.scss approach?
+import { roboto, monoton, noto_serif_jp } from './fonts'
 
 export const metadata: Metadata = {
   title: 'robinet.co.uk',
@@ -20,12 +18,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={roboto.className}>
         <div className="custom-page-wrapper">
           <div className="container">
             <div className="custom-header row d-print-none" role="banner">
               <div className="col mx-1 mx-sm-3">
-                <Link href="/">John&apos;s Technical Musings</Link>
+                <Link href="/" className={monoton.className}>
+                  John&apos;s Technical Musings
+                </Link>
               </div>
             </div>
             <NavItems />
@@ -34,7 +34,7 @@ export default function RootLayout({
                 <div className="col py-2 py-sm-3">{children}</div>
               </div>
             </main>
-            <footer>
+            <footer className={noto_serif_jp.className}>
               <div className="row px-1 px-sm-3 d-none d-print-block">
                 <div className="col">
                   &apos;Audio Amplifier with Defined Output Impedance&apos; by
