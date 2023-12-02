@@ -25,7 +25,7 @@ export default function RootLayout({
           <div className="container">
             <div className="custom-header row d-print-none" role="banner">
               <div className="col mx-1 mx-sm-3">
-                <Link href="/">John's Technical Musings</Link>
+                <Link href="/">John&apos;s Technical Musings</Link>
               </div>
             </div>
             <NavItems />
@@ -37,8 +37,8 @@ export default function RootLayout({
             <footer>
               <div className="row px-1 px-sm-3 d-none d-print-block">
                 <div className="col">
-                  'Audio Amplifier with Defined Output Impedance' by John Howard
-                  is licensed under a Creative Commons
+                  &apos;Audio Amplifier with Defined Output Impedance&apos; by
+                  John Howard is licensed under a Creative Commons
                   Attribution-NonCommercial-ShareAlike 4.0 International
                   License. Visit www.robinet.co.uk for the latest version of
                   this document.
