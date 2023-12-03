@@ -10,7 +10,7 @@ export default function SVGImage(props) {
     <div className="svg-wrapper my-4 mx-auto" style={{ maxWidth: maxWidth }}>
       <div className="text-center">
         <Link href={href}>
-          <Image
+          <img
             src={svg}
             alt={alt}
             width="100%"
