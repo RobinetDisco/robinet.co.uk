@@ -1,0 +1,17 @@
+.katex-inline {
+  .katex {
+    font-size: 1.2rem;
+
+    .text {
+      font-family: var(--font-roboto);
+      font-size: 1rem;
+    }
+
+    .mfrac {
+      font-size: 1.45em;
+      .mfrac {
+        font-size: 1.15rem;
+      }
+    }
+  }
+}

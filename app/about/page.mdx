@@ -1,10 +1,10 @@
----
-title: About Me
----
+export const metadata = {
+  title: 'About Me'
+}
 
-export { MDXLayout as default } from '../components/mdx-layout.jsx'
+import Link from 'next/link'
 
-import { Link } from 'gatsby'
+# About Me
 
 My name is John Howard, and I am a retired electronics engineer. After graduating from university, I was employed in the
 communications industry, joining the design team working on Europe's first electronic telephone exchange at
@@ -15,4 +15,4 @@ Since retirement, I have been pursuing a life-long
 interest in music and audio, which began back in the days when the only available technology was valves, and the
 only software was 78 RPM records.
 
-<Link to="/contact" className="btn btn-primary d-print-none" role="button">Contact Me</Link>
+<Link href="/contact" className="btn btn-primary d-print-none" role="button">Contact Me</Link>

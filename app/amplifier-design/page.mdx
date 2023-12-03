@@ -1,18 +1,11 @@
----
-title: Audio Amplifier with Defined Output Impedance
----
+export const metadata = {
+  title: 'Audio Amplifier with Defined Output Impedance'
+}
 
-export { MDXLayout as default } from '../components/mdx-layout.jsx'
-
-import fig1 from '../images/fig1.svg'
-import fig2 from '../images/fig2.svg'
-import fig3 from '../images/fig3.svg'
-import fig4 from '../images/fig4.svg'
-import fig5 from '../images/fig5.svg'
-import fig6 from '../images/fig6.svg'
-import fig7 from '../images/fig7.svg'
 import SVGImage from '../components/svg-image.jsx'
-import UpArrow from '../images/up-arrow.svg'
+import UpArrow from '../../public/images/up-arrow.svg'
+
+# Audio Amplifier with Defined Output Impedance
 
 ## Introduction
 
@@ -24,7 +17,7 @@ The diagram below shows a current-controlled current-transactor ($$CCCT$$), of f
 An ideal $$CCCT$$ is, in effect, an amplifier having zero input impedance and infinite output impedance.
 
 <SVGImage
-  svg={fig1}
+  svg="/images/fig1.svg"
   href="/pdfs/fig1.pdf"
   alt="Figure 1"
   caption="Fig. 1"
@@ -45,7 +38,7 @@ What is required is a high-gain linear current amplifier. Consider the well-know
 which is a staple of integrated circuit design, as shown in Figure 2:
 
 <SVGImage
-  svg={fig2}
+  svg="/images/fig2.svg"
   href="/pdfs/fig2.pdf"
   alt="Figure 2"
   caption="Fig. 2"
@@ -55,7 +48,7 @@ which is a staple of integrated circuit design, as shown in Figure 2:
 If $$R_1$$ and $$R_2$$ are equal, and the transistors are well matched, then the output current, $$I_2$$ will be equal to the input current, $$I_1$$. However, merely decreasing $$R_2$$ will not result in accurate current amplification, because the collector currents and hence the base-emitter voltages will vary in a non-linear fashion. I suggest that what is required is something that I will call an 'amplifying current mirror' as shown in figure 3 below:
 
 <SVGImage
-  svg={fig3}
+  svg="/images/fig3.svg"
   href="/pdfs/fig3.pdf"
   alt="Figure 3"
   caption="Fig. 3"
@@ -67,7 +60,7 @@ It will be seen that the output current, $$I_{out}$$ is now (to a close approxim
 In order for this circuit to be useful for audio, we need to split the incoming signal into negative and positive halves. The simplest, and probably the most effective way, is to use a fairly conventional but low-powered class-B stage, as shown below:
 
 <SVGImage
-  svg={fig4}
+  svg="/images/fig4.svg"
   href="/pdfs/fig4.pdf"
   alt="Figure 4"
   caption="Fig. 4"
@@ -81,7 +74,7 @@ Note that $$R_s$$ provides a suitable point for the application of the necessary
 Figure 5, (below) shows the circuit of an amplifier employing the approach outlined above.
 
 <SVGImage
-  svg={fig5}
+  svg="/images/fig5.svg"
   href="/pdfs/fig5.pdf"
   alt="Figure 5"
   caption="Fig. 5"
@@ -115,7 +108,7 @@ A possible approach to obtaining a flat power response (as opposed to a flat cur
 ## Appendix B - Amplifying Current Mirror Analysis
 
 <SVGImage
-  svg={fig6}
+  svg="/images/fig6.svg"
   href="/pdfs/fig6.pdf"
   alt="Figure 6"
   caption="Fig. 6"
@@ -147,7 +140,7 @@ The constant term $$(I_1 - I_2)$$ represents the output quiescent current when $
 ## Appendix C - Composite Amplifier Analysis
 
 <SVGImage
-  svg={fig7}
+  svg="/images/fig7.svg"
   href="/pdfs/fig7.pdf"
   alt="Figure 7"
   caption="Fig. 7"
@@ -189,4 +182,4 @@ The second term will be recognized as the power transfer equation, so this is in
 3. Bailey, Arthur R. 'Output transistor protection in A.F. amplifiers' _Wireless World_, June 1968, pp 154-156
 4. Tomcik, Daniel J. 'Missing Link in Speaker Operation' _Radio Electronics_, Dec 1954 and Jan 1955. (A link to this article is available via the [Wayback Machine](https://web.archive.org/web/20110131110334/http://www.paulspeltz.com/tomcik/index.html))
 
-<a href="#top" className="d-print-none"><img src={UpArrow} className="me-2" height="15" width="15" alt="" />Back to top</a>
+<a href="#top" className="d-print-none"><img src="/images/up-arrow.svg" className="me-2" height="15" width="15" alt="" />Back to top</a>
