@@ -1,5 +1,5 @@
 import React from 'react'
-// import ReCAPTCHA from 'react-google-recaptcha'
+import ReCAPTCHADiv from '../components/recaptcha-div'
 
 export const metadata = {
   title: 'Contact the Author',
@@ -9,7 +9,6 @@ export default function ContactFormPage() {
   return (
     <>
       <h1>Contact the Author</h1>
-      <p>WARNING: RECAPTCHA IS DISABLED!</p>
       <form
         name="contact"
         method="POST"
@@ -71,7 +70,7 @@ export default function ContactFormPage() {
           />
         </div>
         <div className="mb-3">
-          {/* <ReCAPTCHA sitekey={process.env.GATSBY_RECAPTCHA_KEY} /> */}
+          <ReCAPTCHADiv />
         </div>
         <div className="mb-3">
           <button type="submit" className="btn btn-primary me-2">
