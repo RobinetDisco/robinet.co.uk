@@ -4,6 +4,7 @@ import Link from 'next/link'
 import 'katex/dist/katex.min.css'
 import './scss/custom.scss'
 import NavItems from './components/nav-items'
+import PrintButton from './components/print-button'
 import { roboto, monoton, noto_serif_jp } from './fonts'
 
 export const metadata: Metadata = {
@@ -31,7 +32,10 @@ export default function RootLayout({
             <NavItems />
             <main>
               <div className="row px-1 px-sm-3">
-                <div className="col py-2 py-sm-3">{children}</div>
+                <div className="col py-2 py-sm-3">
+                  <PrintButton />
+                  {children}
+                </div>
               </div>
             </main>
             <footer className={noto_serif_jp.className}>
