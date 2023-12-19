@@ -11,7 +11,7 @@ export default function NavItems() {
       url: '/amplifier-design',
       key: 'amplifier-design',
     },
-    // { name: 'Discographer', url: '/disco', key: 'disco' },
+    { name: 'Discographer', url: '/disco', key: 'disco' },
     { name: 'About Me', url: '/about', key: 'about' },
     { name: 'Contact Form', url: '/contact', key: 'contact' },
   ]
