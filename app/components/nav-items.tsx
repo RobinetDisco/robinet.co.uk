@@ -11,7 +11,7 @@ export default function NavItems() {
       url: '/amplifier-design',
       key: 'amplifier-design',
     },
-    // { name: 'Discographer', url: '/disco', key: 'disco' },
+    { name: 'Discographer', url: '/disco', key: 'disco' },
     { name: 'About Me', url: '/about', key: 'about' },
     { name: 'Contact Form', url: '/contact', key: 'contact' },
   ]
@@ -26,7 +26,10 @@ export default function NavItems() {
             <li className="nav-item" key={`nav-item-${navItem.key}`}>
               <Link
                 className={`nav-link ${
-                  pathname === navItem.url ? 'active' : ''
+                  pathname === navItem.url ||
+                  (navItem.url !== '/' && pathname.startsWith(navItem.url))
+                    ? 'active'
+                    : ''
                 }`}
                 href={navItem.url}>
                 {navItem.name}

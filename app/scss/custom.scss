@@ -55,6 +55,36 @@ body,
   background-color: white;
 }
 
+#contents {
+  display: none;
+}
+
+.disco-cfg {
+  .row {
+    border-bottom: 1px solid $cyan-200;
+    margin-right: 0;
+    margin-left: 0;
+
+    > .col,
+    > [class*='col-'] {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+}
+
+@include media-breakpoint-up(md) {
+  #contents + ul,
+  #contents + ol {
+    background-color: $secondary;
+    float: right;
+    margin-left: 1em;
+    padding-right: 2em;
+    padding-bottom: 1em;
+    padding-top: 1em;
+  }
+}
+
 @include media-breakpoint-down(sm) {
   .nav-tabs {
     border: none;
@@ -118,5 +148,10 @@ body,
       color: $body-color;
       text-decoration: none;
     }
+  }
+
+  #contents + ul,
+  #contents + ol {
+    display: none;
   }
 }
