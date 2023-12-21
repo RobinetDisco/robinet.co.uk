@@ -26,7 +26,10 @@ export default function NavItems() {
             <li className="nav-item" key={`nav-item-${navItem.key}`}>
               <Link
                 className={`nav-link ${
-                  pathname === navItem.url ? 'active' : ''
+                  pathname === navItem.url ||
+                  (navItem.url !== '/' && pathname.startsWith(navItem.url))
+                    ? 'active'
+                    : ''
                 }`}
                 href={navItem.url}>
                 {navItem.name}
