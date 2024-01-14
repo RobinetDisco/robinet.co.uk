@@ -2,6 +2,7 @@ $primary: #087990;
 $secondary: #e9ecef;
 $btn-hover-bg-shade-amount: 30%;
 $btn-hover-bg-tint-amount: 30%;
+$code-color: #296df5;
 
 $nav-link-font-weight: bold;
 $nav-tabs-border-color: $primary;
@@ -61,7 +62,7 @@ body,
 
 .disco-cfg {
   .row {
-    border-bottom: 1px solid $cyan-200;
+    border-bottom: 1px solid $gray-400;
     margin-right: 0;
     margin-left: 0;
 
