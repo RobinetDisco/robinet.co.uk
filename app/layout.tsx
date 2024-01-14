@@ -41,8 +41,8 @@ export default function RootLayout({
             <footer className={noto_serif_jp.className}>
               <div className="row px-1 px-sm-3 d-none d-print-block">
                 <div className="col">
-                  &apos;Audio Amplifier with Defined Output Impedance&apos; by
-                  John Howard is licensed under a Creative Commons
+                  All designs and other content on this website by John Howard
+                  are licensed under a Creative Commons
                   Attribution-NonCommercial-ShareAlike 4.0 International
                   License. Visit www.robinet.co.uk for the latest version of
                   this document.

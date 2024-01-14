@@ -13,7 +13,7 @@ const nextConfig = {
 const withMDX = createMDX({
   // Add markdown plugins here, as desired
   options: {
-    remarkPlugins: [remarkToc, remarkMath],
+    remarkPlugins: [remarkMath, [remarkToc, { ordered: true }]],
     rehypePlugins: [rehypeKatex],
   },
 })
