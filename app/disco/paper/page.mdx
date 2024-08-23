@@ -34,8 +34,8 @@ The user interface deploys the `curses` package, to give a simple, but easily re
     className="my-2 mx-auto d-block"
     alt="Disco user interface"
     src={"../../images/disco1.jpg"}
-    width="500"
-    height="340"
+    width="565"
+    height="312"
 />
 
 A CD-ROM drive is obviously needed, although this can be attached to another computer running the local version of the disco server, as will explained later (see [Local Operation Mode](#local-operation-mode)).  Also CD writing capabilities are required if you want to make your own backup copies of an album.
@@ -202,7 +202,7 @@ Assuming that there is more than one entry, `u` will move an item up the list, `
 
 Other control characters are as follows:
 
-- `Control-P` will pause the music, and is repeated will resume the playing.
+- `Control-P` will pause the music, and if repeated will resume the playing.
 - `Control-S` will add the track to the short-list, and `Control-D` will remove it.
 - `Control-N` will cause the track to be unavailable for automatic selection.
 - `Control-O` will force a track offline by removing the WAV file.
@@ -451,7 +451,7 @@ This consists of some 15 options, concerning routine maintenance of the system.
     </div>
     <div className="col">
       As above, but convert all items to lower-case first (some GnuDB entries
-      are all in upper-case.
+      are all in upper-case).
     </div>
   </div>
   <div className="row">
@@ -509,7 +509,7 @@ This consists of some 15 options, concerning routine maintenance of the system.
   <div className="row">
     <div className="col-2">On Short-List</div>
     <div className="col">
-      Lists tracks on the short-list (denoted as status `.` on the track list).
+      Lists tracks on the short-list (denoted as status '`.`' on the track list).
     </div>
   </div>
   <div className="row">
@@ -527,15 +527,15 @@ This consists of some 15 options, concerning routine maintenance of the system.
   <div className="row">
     <div className="col-2">Off-line Tracks</div>
     <div className="col">
-      List of tracks not actually on-line (denoted as status `-` on the track
+      List of tracks not actually on-line (denoted as status '`-`' on the track
       list)
     </div>
   </div>
   <div className="row">
     <div className="col-2">Unplayable List</div>
     <div className="col">
-      Tracks deemed unplayable by reason of being too short, too long ,or
-      containing bad language, amongst other problems (Status `-` on the track
+      Tracks deemed unplayable by reason of being too short, too long, or
+      containing bad language, amongst other problems (Status '`-`' on the track
       list).
     </div>
   </div>
