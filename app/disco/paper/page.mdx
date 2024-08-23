@@ -1,0 +1,873 @@
+export const metadata = {
+  title: "Discographer"
+}
+
+import Image from 'next/image'
+import Link from 'next/link'
+
+<nav aria-label="breadcrumb">
+  <ol className='breadcrumb'>
+    <li className="breadcrumb-item"><a href='/disco'>Discographer</a></li>
+    <li className="breadcrumb-item active">Full Paper</li>
+  </ol>
+</nav>
+
+# Discographer – An Automated Disc-Jockey
+
+## Contents
+
+## Introduction
+
+The original rationale for the Discographer  (herein after referred to as "Disco"), was to make the playing of music in a party atmosphere somewhat easier.  Anyone who has tried to select tracks with the aid of a CD album cover, will testify that under typical disco lighting conditions and with pink printing on a paisley background, the task is near impossible.  Also, even given twin CD players, the cueing  of the next track at the right time demands one`s full attention.  The software design presented here aims to solve these issues by storing the music on a computer, together with a database to allow easy sorting and scheduling.  In extremis, Disco will continue to serve uninterrupted music even in the absence of a DJ.
+
+At the outset, it was decided that the music would stored as WAV files.  Although WAV files take up a lot of space (about 10 times as much as MP3s), the main benefit is that the format is the same as that stored on a physical CD, so no encryption or decryption is required.  When this project was first conceived, hard-disk storage was limited and therefore expensive.  So whilst the track-listings of all CD albums were referenced in the database, only a limited number of the actual media (WAV) files were stored on disk.  If an off-line track was selected, the system would issue a "retrieve request", so that the missing WAV file could be "ripped" and subsequently played.  Now that hard-disk storage has become much more plentiful, it is quite feasible to keep everything on-line.
+
+In order to generate the database entries for a newly added CD, the system is able to interrogate the <Link href="https://gnudb.org" target="_blank">GnuDB</Link> (formerly FreeDB) online database via an internet connection.
+
+## Requirements
+
+The system operates on a client-server model, using TCP/IP protocols.  The target operating system is Linux (more or less any flavour), and the server will run quite happily on a Raspberry pi.  A basic knowledge of Linux is therefore assumed.
+
+The user interface deploys the `curses` package, to give a simple, but easily readable operations window.  Because the program makes no use of any specific windowing system (e.g. X-Windows), a simple text-based terminal client program can be used (for example, via "ssh" or "putty") to access the server remotely.  The server machine will normally be run "headless", that is, without an attached screen.
+
+<img
+    className="my-2 mx-auto d-block"
+    alt="Disco user interface"
+    src={"../../images/disco1.jpg"}
+    width="565"
+    height="312"
+/>
+
+A CD-ROM drive is obviously needed, although this can be attached to another computer running the local version of the disco server, as will explained later (see [Local Operation Mode](#local-operation-mode)).  Also CD writing capabilities are required if you want to make your own backup copies of an album.
+
+The external command `cdparanoia` is needed in order to "rip" albums from CD;  and `cdrdao` is required in order to write CDs.
+
+If it is desired to run a local server on another computer, the Network File System (NFS) must be configured, to allow the database files to be mounted remotely.
+
+To interface with the audio hardware, the `pulseaudio` sound server must be installed.
+
+If it is desired to compile the software from source, the following additional libraries are required:
+- libncurses5-dev (curses development libraries)
+- libpulse-dev (pulseaudio development libraries)
+
+## Data Structure
+
+The database is simply a flat-file list of albums, held as plain text files in the sub-folder "Data".  Each file consists of 3 records for each track on the album, containing  the artist, the track title and sundry information such as the track length, last played time, etc.  The first set of 3 records describes the album itself.  Each file name is of the form: `cdAAAA`, where `AAAA` is the album number in decimal (e.g. cd0001, cd1785, etc.).  Within each file, the Nth triplet corresponds to the 2-digit track number, where track 00 refers to the album itself.  The subfolder "Media" holds the actual WAV files, and these are named `AAAA_TT.wav`, where `AAAA` is the album number, and `TT` the track number (e.g. 0746_12.wav).
+
+There are additional subfolders, such as: "PlayLists" (which holds pre-constructed, saved (off-line), play-lists which  can be plugged-in to the running system), "History" (records of past play-lists), "Logs" (archived log-files) and "Local" (which contains data relating to CDs ripped locally with the aid of GnuDB).  There is, optionally, a folder called "Links," which contains the data for any tracks which are linked together in sequence (see [track-linking, section 8.1](#track-linking)).
+
+A file called `history.hst` holds the history of tracks played in the current session, and the file `disco.log` records events such as CD ripping and also any errors encountered.  There is also a file called `disco.cfg`, which contains the parameters controlling the behaviour of both the server process and also any local client commands.
+
+## Basic Operation
+
+Once the software is installed, the necessary folders created, and the configuration file altered to suit the local environment, the master server process can be started in the background by typing `discoserver --start`.  This sets the ball rolling, and a track will be selected and played.  The operation will then continue, selecting successive tracks depending on the playing mode determined from the configuration file (more details of this, later).  To schedule additional tracks, type `disco` to log in to the play-list screen.  The database can then be searched by typing `s`; and from the list which will appear, tracks can be added to the current play list by typing `a`.  Unwanted tracks can be removed from the play list by typing `x`, and a track can be faded out and skipped if it is already playing, by typing `Control-F`.  This is about all you need to know to run an automated music player.  Full details of other features are given in the following sections.
+
+## Configuration
+
+Configuration data is held in a file called `disco.cfg`.  This is a plain text file, and can be edited to reflect local preferences.  It consists of name-value pairs.  Comments are introduced with a hash (#) symbol.  A sample configuration file  `disco.cfg.sample` is provided as a starting-point, the contents of which are discussed in detail, below.
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col">SERVER_NAME = Disco</div>
+    <div className="col-7">Program_name prefix. This is useful if more than one disco server is running on a given machine.</div>
+  </div>
+  <div className="row">
+    <div className="col">SERVER_MODE = Master</div>
+    <div className="col-7">Operating mode. Must be one of "Master", "Local" or "Standalone" see
+      sections [8.2](#local-operation-mode) & [8.3](#standalone-mode) for more information about Local and Standalone modes).</div>
+  </div>
+  <div className="row">
+    <div className="col">MASTER_SERVER = 192.168.1.10</div>
+    <div className="col-7"> The IP address of the master server.</div>
+  </div>
+  <div className="row">
+    <div className="col">MASTER_PORT = 4096</div>
+    <div className="col-7"> The IP port of the master server.</div>
+  </div>
+  <div className="row">
+    <div className="col">MASTER_ROOT = /home/john/disco</div>
+    <div className="col-7"> The default working directory on the master server.</div>
+  </div>
+  <div className="row">
+    <div className="col">LOOPBACK = 127.0.1.1</div>
+    <div className="col-7"> Local loopback address.</div>
+  </div>
+  <div className="row">
+    <div className="col">PASSWORD =</div>
+    <div className="col-7"> Password for console and maintenance access.</div>
+  </div>
+  <div className="row">
+    <div className="col">FREEDB_HOST = gnudb.gnudb.org</div>
+    <div className="col-7"> The URL (Internet address) of the database server.</div>
+  </div>
+  <div className="row">
+    <div className="col">FREEDB_HELLO = cddb hello John robinet.co.uk Disco V1.1e</div>
+    <div className="col-7"> The sign-on message to the FreeDB (GnuDB) server.</div>
+  </div>
+  <div className="row">
+    <div className="col">WAV_PATH = /user/Recordings/</div>
+    <div className="col-7"> Default path for tracks to be written to a new album</div>
+  </div>
+  <div className="row">
+    <div className="col">WAV_FOLDER = Robinet Compilation CD</div>
+    <div className="col-7"> Default name for tracks folder.</div>
+  </div>
+  <div className="row">
+    <div className="col">EXPORT_FOLDER = /user/Recordings/New Folder</div>
+    <div className="col-7"> Folder for tracks ripped from CD</div>
+  </div>
+  <div className="row">
+    <div className="col">CD_DRIVE = /dev/sr0</div>
+    <div className="col-7"> Path to the CD drive, or "0" if none present.</div>
+  </div>
+  <div className="row">
+    <div className="col">MAX_CDR_LENGTH = 4800</div>
+    <div className="col-7">Maximum length for writing CDs (in seconds) 4800 is for a standard 80 mins CD</div>
+  </div>
+  <div className="row">
+    <div className="col">PARANOIA = -Z</div>
+    <div className="col-7"> Level of ripping accuracy (see cdparanoia --help).</div>
+  </div>
+  <div className="row">
+    <div className="col">PLAYING_MODE = Mixed</div>
+    <div className="col-7">Initial playing mode: Must be one of "Console", "Jukebox", "Mixed" or "Random".</div>
+  </div>
+  <div className="row">
+    <div className="col">TIMEOUT = 864000</div>
+    <div className="col-7">Track selection age in seconds. This is the time since a track was last
+      played, before it becomes eligible for re-selection.</div>
+  </div>
+  <div className="row">
+    <div className="col">TRACKS_TO_CHECK = 2000</div>
+    <div className="col-7"> Number of tracks to examine before restarting the search.</div>
+  </div>
+  <div className="row">
+    <div className="col">TRACK_LINKING = 1</div>
+    <div className="col-7">If non-zero, tracks may be linked into groups to be played in sequence.</div>
+  </div>
+  <div className="row">
+    <div className="col">COMP_RATIO = 1.0</div>
+    <div className="col-7">Audio Compression Ratio. 1.0 = uncompressed. Compression is only
+      advisable for classical music in a noisy environment.</div>
+  </div>
+</div>
+
+## Setting Up
+
+See the document [Getting Started](/disco/getting-started) for full details.
+
+Create a folder (the working directory) in some convenient location.  If you have [downloaded the pre-compiled version appropriate to your system](/disco/downloads), simply unzip the file into that folder.  This will create the two binaries `discoserver` and `disco`,  the configuration file `disco.cfg`, and also the necessary sub-folders (Media, Data, PlayLists, History, Links, Local, Logs, and Reports).
+
+Type `discoserver --start` and then `disco`, and an empty window will appear.  There will be, as yet, no database files, so place a commercial CD in the drive.  After a short time, the window will display the track-listing (assuming that there is an internet connection, and that GnuDB recognizes the CD in question).  Sometimes, there will be more than one match for the CD on GnuDB;  press the right or left arrow keys to review the next or previous match.  
+
+Press `F9` to add the CD to the database, followed by the `F10` key to rip the tracks and bring them on-line.  The ripping process can be monitored by tailing the file `disco.log`.  When the ripping is complete, the outcome can be checked by typing `CTRL-W`, to assure the integrity of the WAV files.  
+
+The procedure can now be repeated with other CDs, to build up a reasonable selection of artists and tracks. 
+
+Sometimes, a GnuDB listing will contain errors;  these can be corrected by typing `e` for edit, and altering the faulty entry. The Up and down arrows work as normal: `Page Down` selects the next track and `Page Up` the previous one.  Track 0 refers to the album itself, so that the album artist and/or the title can be changed.  The escape key finishes the edit, and you will be asked to confirm the changes.
+
+Occasionally, GnuDB can find no information at all, and the listing will then appear as a sequence of "Track nn – Unknown" entries.  Again, one could use the editor to fill in the details, but a better plan is to import a track listing by selecting: "Maintenance –Imports—Plain text import".  Suitable track listings can often be obtained from web sites such as "discogs" (albeit involving some massaging of the data).  The format for the imported text file must be: 
+"Artist - Title" (N.B. a single space either side of the hyphen (-).  There are other import options available, such as XMCD.
+
+
+## Menu System
+
+### General
+
+Each menu consists of a number of options, with a movable highlight.  The highlight can be moved up and down by use of the arrow keys  (&ShortUpArrow; and &ShortDownArrow;), and the highlight wraps around at the top and bottom of the options (an exception being when a playlist is displayed).  Pressing `ENTER` on an option will cause some action to be performed, (e.g. a new menu or display of extra information).  The `ESCAPE` key will cause a return to the previous level, or the cancellation of the current action. 
+
+In navigating menus, pressing a letter key will cause the highlight to jump to the first option with that initial letter.  This does not apply to play-lists.
+
+The `F1` key will display a brief help screen in most menus.  Also, there is usually a line at the foot of the screen giving reminders of the most commonly used keys.
+
+When the `disco` command is first invoked, the menu displayed will be the current play-list (possibly with only a single entry).  Pressing escape here will display the main menu (see below).
+
+### PlayList Menu
+
+Assuming that there is more than one entry, `u` will move an item up the list, `d` moves it down the list, and `t` will push the item to the top of the list.  Note, however, that the top item (the currently playing track) cannot be moved or displaced.  The following also applies to other track-listings, such as saved (offline) play-lists, and reports.
+
+- `s` will display a dialogue to search for an artist and/or a track title; and `a` will add an item found to 	the current playlist.
+- `l` will display the full track-list for the album to which the item belongs.
+- `a` will prompt for an album number and display the track-list for that album.
+- `h` will display the history of tracks played recently.
+- `e` allows editing of the item.
+- `m` displays more tracks by the current artist.
+- `r`  will randomize (shuffle) the play-list.
+- `c` will clear the play-list, with the option of saving it under another name.
+- `k` will keep the play-list, saving it under another name.
+- `f`  (favourite) will add the track to a nominated saved (offline) play-list.
+- `p` will show a menu of saved play-lists, and a chosen one can be appended to the current play-list.
+- `x` will delete an item from the current play-list (not the top item, though).
+- `Control-F` will fade out and skip the currently-playing track.
+
+Other control characters are as follows:
+
+- `Control-P` will pause the music, and if repeated will resume the playing.
+- `Control-S` will add the track to the short-list, and `Control-D` will remove it.
+- `Control-N` will cause the track to be unavailable for automatic selection.
+- `Control-O` will force a track offline by removing the WAV file.
+- `Control-U` will add a track to the "unplayable list", without off-lining it.
+- `Control-T`  will totalize the playing times of all tracks on the list.
+- `Control-R`  presents a re-sort menu offering several different sort orders.
+- `Control-V`  reverses the current sort-order.
+- `Control-A`  (local server only) starts/stops a local audio stream to play the current track.
+- `Control-L`  (local server only)  plays/stops the track under the cursor in a local audio stream.
+- `Control-G`  (master server only) Go: starts the music playing.
+- `Control-E`  (master server only) End: stops the music at the end of the currently playing track.
+- `Control-K`  will kill (cancel) any outstanding retrieve operation. 
+- `Control-I` will check a track for integrity (detect glitches, etc.).
+- `Control-W` will check the integrity of a whole album.
+
+(The utility of some of the above controls will depend upon the context and current menu).
+
+
+The following function keys are mostly universal:
+
+- `F1`:	Display a brief help screen
+- `F2`:	Start a new search.  Find a specified string within the current listing.
+- `F3`:	Find the next matching string.
+- `F4`:	Print to a specified file.
+- `F5`:	Re-acquire the database and return to the current listing.
+- `F6`:	Browse to the first entry in a list (Control-Page Up or Control-Home).
+- `F7`:	Browse to the last entry in a list (Control-Page Down or Control-End).
+- `F8`:	Apply various actions to all items in a list via a menu (see below).
+- `F9`:	Add an album to the database (usually with a GnuDB-derived play-list).
+- `F10`:	Bring on line any items in the play-list that are currently off-line.
+- `F11`:	(Linux command) Go full-screen display (not very useful).
+- `F12`:	No effect.
+
+
+The `F8` apply menu has the following options:
+
+- Add all tracks to the current playlist
+- Put all tracks on a specified (saved) playlist
+- Remove all tracks from normal Selection
+- Put all tracks on the short-list
+- Remove all tracks from the short-list
+- Edit all artist strings: This will replace a specified string by an alternative string in all artist names (case sensitive).
+- Edit all title strings: As above, but for all title strings.
+- Force all tracks off-line: Extreme caution is advised, as there is no undo option, and the WAV files are deleted immediately.
+
+### Main Menu
+
+The main menu is reached by pressing the escape key whilst the current play-list is being displayed.  There are 10 options, the first 6 of which set the playing mode of the program (the initial mode is set by the PLAYING_MODE token in the configuration file).
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col-2">
+      Console Mode:
+    </div>
+    <div className="col">
+      This is intended for use in a live DJ environment (possibly with a
+      directly connected terminal), and can be programmed to offer password
+      protection. In this mode, automatic track selections are made from the
+      short-list only.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Jukebox Mode:
+    </div>
+    <div className="col">
+      This is for unattended operation, track selections again being from the
+      short-list.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Random Mode:
+    </div>
+    <div className="col">
+      Here tracks are selected randomly from the entire database.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Mixed Mode:
+    </div>
+    <div className="col">
+      In this mode, short-list tracks and random tracks alternate.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Playlist Mode:
+    </div>
+    <div className="col">
+      The user is prompted to choose a saved play-list, from which tracks can
+      then be selected.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Play-mixed Mode:
+    </div>
+    <div className="col">
+      Again the user chooses an offline play-list, but random selections will
+      alternate with those from the chosen list.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Local Audio:
+    </div>
+    <div className="col">
+      (Local server only) start or stop local streaming of the currently-playing
+      track. See [section 8.2](#local-operation-mode) for details.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Maintenance:
+    </div>
+    <div className="col">
+      This brings up the maintenance menu. This can be protected by defining the
+      token "PASSWORD" in the configuration file (see below).
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Shutdown/Reboot:
+    </div>
+    <div className="col">
+      Menu to stop or reboot the server and/or the programs (password protection
+      optional).
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">
+      Help:
+    </div>
+    <div className="col">
+      Displays a brief summary of the controls; also accessible via the F1 key.
+    </div>
+  </div>
+</div>
+
+Note: the password protection offered by the "PASSWORD" token in disco.cfg, is not intended to be very secure, since the configuration file is in plain text;  the intention is to prevent curious bystanders from causing problems on the disco console by idly pressing keys.  To turn this feature off,  either set PASSWORD to blank, or remove it altogether.  When in use, the password protection applies to Console Mode, Maintenance, and Shutdown and Re-boot options.
+
+### Maintenance Menu
+
+This consists of some 15 options, concerning routine maintenance of the system.
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col-3">
+      Album Tracklist:
+    </div>
+    <div className="col">
+      Displays the track listing for the last-remembered album.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Report Generator:
+    </div>
+    <div className="col">
+      Brings up the report generator menu.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Imports:
+    </div>
+    <div className="col">
+      Displays the track list imports menu.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Back Up Album To CD:
+    </div>
+    <div className="col">
+      Writes an album to a CD (requires "cdrdao").
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Artist/Title Search (Case Sensitive):
+    </div>
+    <div className="col">
+      Special search respecting alphabetic case and leading and trailing spaces.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Global search (Case Sensitive):
+    </div>
+    <div className="col">
+      As above, but the search is everywhere in the database.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Edit Album:
+    </div>
+    <div className="col">
+      Invokes the editor on the specified album. Note that only the artist,
+      title and track time may edited directly.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Delete Album:
+    </div>
+    <div className="col">
+      Deletes an album – use with care (There is no undo option, and the
+      associated WAV files are deleted immediately).
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Correct "Various Artists" Format:
+    </div>
+    <div className="col">
+      Attempts to normalize contents of compilation albums. These often have
+      "various" for the artist field, and combine artist and track in the title
+      field, or vice versa.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Transpose Artist & Title:
+    </div>
+    <div className="col">
+      Corrects a faulty GnuDB or other listing where the track title is shown
+      before the artist name, instead of the reverse.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Capitalize Artist & Title:
+    </div>
+    <div className="col">
+      Ensures that each word in artist and in track begins with a capital
+      letter.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Capitalize (Lower-case First):
+    </div>
+    <div className="col">
+      As above, but convert all items to lower-case first (some GnuDB entries
+      are all in upper-case).
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Capitalize ALL Artists & Titles:
+    </div>
+    <div className="col">
+      Performs the capitalization on the whole database – use with caution.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Recalculate Track Timings For Album:
+    </div>
+    <div className="col">
+      Recalculates the track times for an album from the sizes of the WAV files.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-3">
+      Refresh Database:
+    </div>
+    <div className="col">
+      Re-reads the whole database into memory, as in the initial start-up
+      sequence (this is also available by typing F5).
+    </div>
+  </div>
+</div>
+
+
+### Report Generator
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col-2">Album List</div>
+    <div className="col">
+      Compiles a list of all albums in the database in numerical order, with
+      sorting options. It shows the total time and also the number of tracks.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Track List by Artist</div>
+    <div className="col">
+      Lists all tracks in the database, sorted by artist, with or without
+      duplicates.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Track List by Title</div>
+    <div className="col">
+      Lists all tracks in the database, sorted by track title, with or without
+      duplicates.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">On Short-List</div>
+    <div className="col">
+      Lists tracks on the short-list (denoted as status '`.`' on the track list).
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Not on Short-list</div>
+    <div className="col">
+      Tracks not on the short-list.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Not on normal selection</div>
+    <div className="col">
+      Tracks which are not normally selected automatically.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Off-line Tracks</div>
+    <div className="col">
+      List of tracks not actually on-line (denoted as status '`-`' on the track
+      list)
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Unplayable List</div>
+    <div className="col">
+      Tracks deemed unplayable by reason of being too short, too long, or
+      containing bad language, amongst other problems (Status '`-`' on the track
+      list).
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Duplicates report</div>
+    <div className="col">
+      Searches through the database looking for tracks with fewer than a
+      specified number of unique tracks, with a view to transferring these
+      tracks to another compilation (more details later). This can take a very
+      long time to run.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Reset Statistics</div>
+    <div className="col">
+      This will reset all the played counts in the whole database. Use wisely.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Audit Playlists</div>
+    <div className="col">
+      This is a check that all the tracks in each saved play-list are, in fact,
+      playable.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Find Monaural Tracks</div>
+    <div className="col">
+      Scans the database, and compiles a browsable list of monaural tracks.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Check for duplicates</div>
+    <div className="col">
+      Performs a duplicate check on a specified album.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">WAV file integrity check</div>
+    <div className="col">
+      Runs a WAV integrity check on all albums. This will cause a lot of network
+      traffic, and should not be run on a local server.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Show recent history</div>
+    <div className="col">
+      Presents a list of the last 58 archived history files. Note that history
+      files (and log files) are archived each time discoserver starts, and at
+      02:00 hours each day.
+    </div>
+  </div>
+</div>
+
+As an adjunct to the report generator, there is also a printing menu which will dump the current listing to a file.  All output will be written to the "Reports" subfolder in the working directory.  Press `F4` and the following options will be available (this should work in almost any context):
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col-2">Plain Text Listing</div>
+    <div className="col">
+      Output is of the form: "Artist – Title"
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Inlay Card</div>
+    <div className="col">
+      Output more or less as shown on-screen.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">CSV file</div>
+    <div className="col">
+      Conventional comma-separated listing, with optional index numbers.
+    </div>
+  </div>
+</div>
+
+### Imports Menu
+
+This has a number of options to assist in creating and editing new albums.
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col-2">Create New album from Folder contents</div>
+    <div className="col">
+      This will take a folder containing WAV files listed in the format "Artist
+      – Title.wav", and create a new album entry in the database, optionally
+      writing it to a CD. See the configuration file for naming conventions.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-2">XMCD (FreeDB) Style import</div>
+    <div className="col">
+      The XMCD format, as originally employed by FreeDB and subsequently by
+      GnuDB.
+    </div>
+  </div>
+  <div className="row">
+    <div className="col-2">Plain text import</div>
+    <div className="col">
+      This will import a file in the format "Artist – Title" to overwrite an
+      existing album listing (useful when GnuDB produces no result).
+    </div>
+  </div>
+</div>
+
+## Miscellaneous
+
+### Track Linking
+
+Sometimes it is desirable to be able to play certain tracks as a linked group.  In particular, if the database is used for classical, as opposed to rock/pop music, a suite of small pieces or a symphony, might benefit from being played in the intended sequence.  In order to link tracks, press `q` when the desired first item is displayed.  The program will display whether the track is linked, and if not, will ask if this is to be made the head of a new chain.  If the track is already part of a linked chain, the whole chain will be displayed, and the user will be given the opportunity to add to the chain, or possibly delete it.  Assuming that a track has been made the head of a new chain, then pressing `q` on further tracks will present the opportunity to continue adding them, and other tracks to the chain.  The data pertaining to the linked tracks is held in the sub-folder "Links".  If a member of a chain other than the head item is auto-selected, the program will replace that track with the track at the head of the chain, and append all the other linked tracks to the play-list, thus ensuring the tracks are played in the correct order.  Note that this only applies to tracks automatically selected: tracks added manually are played as normal, and no account is taken of any existing links for those tracks.
+
+### Local Operation Mode
+
+In this mode, discoserver acts in a subservient role to a master server running on a different machine, but sharing the database.  When combined with a local disco client, it has the following uses: it can employ the CD drive on the local machine to read and write CDs (especially useful if the master server does not possess a CD drive, or it is inconveniently located).  It can stream the currently-playing track from the master server over the network and play it on the local sound-card (with Control-A ), and also preview tracks locally, independently of the playing track (using Control-L).  
+
+ The local mode is facilitated by setting the SERVER_MODE token in the configuration file (disco.cfg) to "Local".   Note that in order for the local mode to work correctly, the discoserver program running on the local server must have root privileges:  this is because it is necessary for the program  to mount the database files from the server via NFS, and only root can do this.  The database folders Data, Media, and PlayLists should be exported from the master server by editing the file "/etc/exports".  Of the other folders, Logs, History, Local and Reports, the local server will use its own local copies. 
+
+The `--start` parameter to discoserver may be omitted, as this is not relevant to a local server, which takes no part in the scheduling of tracks, although tracks can still be added or deleted manually.
+
+Since the local server does not schedule or play tracks by itself, all of the items from  PLAYING_MODE downwards in the configuration file are irrelevant.
+
+To preview (play) tracks in local mode, press `Control-L`.  A new window will appear, showing the artist and title of the track, the elapsed time, and instructions for skipping to and fro.  The escape key will stop the operation.  Note that tracks played in this mode, are not pre-processed in any way and are therefore effectively played "raw".
+
+
+### Standalone Mode
+
+In this operational mode, the local discoserver process does not run, and the `disco` client program connects only to the master server.  This is equivalent, in practice, to running a disco client on the master machine via a terminal server such as `putty` or via `ssh`, except that audio streaming services are now available, and tracks may be played locally (using Control-A or Control-L as described in the previous section).  
+
+As with Local Server Mode, most of the entries in the configuration file have no significance in stand-alone mode.
+
+### Command Line
+
+The `disco` command supports a command-line interface (CLI).  This is of use for building-into scripts, such as, for instance `cron`,  but one may find other uses.  Here are some of the more useful commands:
+
+<div className="disco-cfg mb-4">
+  <div className="row">
+    <div className="col-5">`--skip`</div>
+    <div className="col">
+      Fade out current track and play the next one.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--stop`</div>
+    <div className="col">
+      Stop the master server at end of the current track.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--stop-local`</div>
+    <div className="col">
+      Shutdown the locally-running disco service.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--playlist`</div>
+    <div className="col">
+      Display the current playlist.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--playlist-search`</div>
+    <div className="col">
+      Display a list of saved (offline) playlists.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--playlist-use <playlist>`</div>
+    <div className="col">
+      Append specified playlist to the current playlist.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--playlist-add <aaaa/tt>`</div>
+    <div className="col">
+      Add specified numerical album/track to the current playlist.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--playlist-del <aaaa/tt>`</div>
+    <div className="col">
+      Delete album/track numbers from the current playlist.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--shortlist <aaaa/tt>`</div>
+    <div className="col">
+      Add album/track numbers to the short-list
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--shortlist-del <aaaa/tt>`</div>
+    <div className="col">
+      Remove album/track numbers from the short-list
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--search --artist --title`</div>
+    <div className="col">
+      Search for artist and/or title.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--album`</div>
+    <div className="col">
+      Show only album details
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--history`</div>
+    <div className="col">
+      Display history of recently played tracks.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--audio`</div>
+    <div className="col">
+      Start the local audio stream.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--audio-off`</div>
+    <div className="col">
+      Stop the local audio stream.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--mode`</div>
+    <div className="col">
+      Display the current playing mode
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--mode <playing_mode>`</div>
+    <div className="col">
+      Change the playing mode.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">
+      `--mode <playing_mode> --playlist <playlist name>`
+    </div>
+    <div className="col">
+      Set the playlist to be used with playing mode "playlist" or "play-mixed"
+      modes.
+    </div>
+  </div>
+
+  <div className="row">
+    <div className="col-5">`--help`</div>
+    <div className="col">
+      A brief summary of commands is displayed.
+    </div>
+  </div>
+</div>
+
+As a reminder, playing modes are:  Console, Jukebox, Random, Mixed, Playlist or Play-Mixed.  
+
+For the search command, one may specify `--artist <name>`  or `--title <string>` , or both; partial names are accepted, and alphabetic case is ignored.  The optional argument `--album`, will restrict the output to just the album details.
+
+The output for play-lists and search results is in CSV format, as follows:
+
+	`album_no/track_no,"Artist","Title",Track-Time,"Album Title",online,shortlist`
+
+	where `album_no` is 4 digits, `track_no` is 2 digits, and `track_time` is mins:secs. Online is `Y` 	or `N`.  If the track is on the shortlist `Y` is shown, or else `N`.   Some examples:
+
+<code>
+0797/19,"Sister Sledge","Thinking Of You",03:57,"Hits 93 Vol 3",Y,N<br/>
+1247/11,"Led Zeppelin","The Wanton Song",03:59,"Physical Graffiti",Y,N<br/>
+0304/12,"Supergrass","Sun Hits The Sky",03:38,"Now 37 - CD 2",Y,Y
+</code>
+
+If the command `-- album`  is also given, the output refers to the album alone, in the format:
+
+`Disc-ID,Album_no,"Artist","Title",Total-Time, No_of_tracks`
+
+	Where Disc-ID is the 8-digit hex number as used by GnuDB and total-time is the length of 	the album in mins:secs.  Examples:
+
+<code>
+D512570E,1247,"Led Zeppelin","Physical Graffiti",78:10,14<br/>
+45110E14,0109,"Various Artists","The Greatest Hits Of 1981",71:24,20<br/>
+C211600F,2356,"Various Artists","Nothin' But The Blues - CD 2",73:23,15
+</code>
+
+The output from `--history` is in the format:
+
+`album_no/track_no,"Artist","Title",Track-Time,Date-played @ Time_played`
+
+Examples:
+
+<code>
+1738/05,"Brendan Benson","Alternative to Love",04:31,23/02/23 @ 17:05:38<br/>
+0839/13,"Status Quo","Tongue Tied",04:21,23/02/23 @ 17:10:05<br/>
+2568/02,"Depeche Mode","Enjoy The Silence (Extract Fr",03:45,23/02/23 @ 17:13:56
+</code>
+
+Note that in this instance, the artist and/or title may be truncated so as to fit on a line.
+
+### Implementation Notes
+
+#### Track Selection
+
+Regardless of the operation mode (Jukebox, Playlist, Random, etc.),  tracks are selected in a pseudo-random fashion.  A time-out is set initially, and tracks which have been played within that time, are rejected, and a count incremented.  If no candidate tracks are found when the count expires, the timeout is halved, the counter reset, and the process repeats.  For modes which involve a (saved) play-list, a linked-list of the contents is constructed, and the counter is set to the number of tracks found in the play-list.  In the case of a short-list mode, a linked-list is compiled of all items on the shortlist, and the counter set to the total found.  If the mode is "Random", tracks are selected at random from the whole database.  Also, should the time-out reach zero in all the other modes, a random track will be chosen.  This algorithm is designed to ensure that music will always be available, and that adjacent repeats of a given track are unlikely.  To supplement the latter aim, a check is made that a given artist has not been played within the last up to 10 plays (although this restriction will only apply if a sufficient variety of artists exists in the database). 
+
+In addition to the currently playing track, a secondary track is selected to be the "pending" (next-to-play) track.  Track selection takes place in a background job, and so does not interfere with the normal running of the discoserver process.
+
+
+#### Track Preparation
+
+Once a track is selected, a preparation job is run in the background.  The purpose of this is to find the true start and end of a track ( i.e. to discard leading and trailing silence) and to find the average (actually RMS) level of the track.  This is to produce a scale factor, in an attempt to level-out the loudness variations amongst tracks.  Also it is determined during this process whether the track is monaural, rather than stereo.  The track start time, end time, scale factor and mono/stereo status are stored as part of the track data for subsequent use by the player process.
+
+
+#### Player Process
+
+When a track becomes the current playing track, the player process runs in the background. Samples are read from the WAV file in blocks of 4410 samples, which represents 1/10 of a second of sound.  The samples are multiplied by the compression level (if not set to 1), and the scale factor adjusted to ensure that the samples do not exceed the maximum peak level (just short of the maximum 32767 samples).  This is to avoid possible problems with some digital to analogue converters.  If the track is marked as monaural, one channel is sightly delayed to provide some ambience for a pseudo-stereo effects.  Finally, the block of scaled samples is written to a pulseaudio stream and thence to the sound-card.  Note that the compression, if used, is an upward dynamic compression, meaning that quieter sounds are amplified. 
+
+<a href="#top" className="d-print-none"><img src="/images/up-arrow.svg" className="me-2" height="15" width="15" alt="" />Back to top</a>

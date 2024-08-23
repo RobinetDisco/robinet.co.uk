@@ -1,0 +1,30 @@
+export const metadata = {
+  title: 'Getting Started'
+}
+
+import Link from 'next/link'
+
+<nav aria-label="breadcrumb">
+  <ol className='breadcrumb'>
+    <li className="breadcrumb-item"><a href='/disco'>Discographer</a></li>
+    <li className="breadcrumb-item active">Getting Started</li>
+  </ol>
+</nav>
+
+# Getting Started
+
+1. Get a copy of the installation zip-file from the [Downloads](/disco/downloads) page; there are currently binaries for Ubuntu Linux and Raspbian.
+1. Create a folder (the working directory) in some convenient location, and unzip the file into that folder.  This will create the two binaries `discoserver` and `disco`,  the configuration file `disco.cfg`, and also the necessary sub-folders (`Media`, `Data`, `PlayLists`, `History`, `Links`, `Local`, `Logs`, and `Reports`).
+      - The working directory should be on a file system with at least 100 Megabytes of free space, not including the Media folder containing the WAV files. 
+      - It may be convenient to make the Media folder a separate externally mounted filesystem;  indeed, if the server is to be run on a Raspberry Pi, an external drive is virtually mandatory, since the root filesystem is likely to be on an SD card  of perhaps only 6 or so Gigabytes capacity.  Also, since it is desirable to reduce the number of writes on the SD card, it is recommended to put the Data and PlayLists folders on the mounted external drive, too.  
+      - My personal preference is to place the actual folders on the external drive, which will then be mounted as “Base”, and to make symbolic links from the working directory for Media, Data and PlayLists to those in the Base directory (using `ln -s`).  
+1. Run `discoserver` in one terminal and then `disco` in another. 
+    - As there will be, as yet, no database files, place a commercial CD in the drive.  After a short time, the window will display the track-listing (assuming that there is an internet connection, and that GnuDB recognizes the CD in question).  Sometimes, there will be more than one match for the CD on GnuDB; press right or left arrow keys to review next or previous match.  
+    - Press `F9` to add the CD to the database, followed by `F10` to rip the tracks and bring them on-line.  The ripping process can be monitored by tailing the file `disco.log`.  When the ripping is complete, the outcome can be checked by typing `CTRL-W`, to assure the integrity of the WAV files.  The procedure can now be repeated with other CDs, to build up a reasonable selection of artists and tracks.  The music can subsequently be started playing by typing `CTRL-G` (Go).
+
+## Troubleshooting GnuDB Problems
+
+- Sometimes, a GnuDB listing will contain errors;  these can be corrected by typing `e` for edit, and altering the faulty entry. The Up and down arrows work as normal: `Page Down` selects the next track and `Page Up` the previous one.  Track 0 refers to the album itself, so that the artist and/or title can be changed.  The escape key finishes the edit, and you will be asked to confirm the changes.
+
+- Occasionally, GnuDB can find no information at all, and the listing will then appear as a sequence of `Track nn – Unknown` entries.  Again, one could use the editor to fill in the details, but a better plan is to import a track listing by selecting: `Maintenance –> Imports —> Plain text import`.  Suitable track listings can often be obtained from web sites such as <a href="https://discogs.com/" target="_blank">Discogs</a> (albeit involving some massaging of the data).  The format for the imported text file should be: 
+      `Artist – Title` (N.B. a single space either side of the hyphen (-).  There are other import options available, such as <a href="https://www.tikan.org/xmcd/" target="_blank">XMCD</a>.
