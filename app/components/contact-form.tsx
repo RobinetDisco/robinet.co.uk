@@ -30,6 +30,23 @@ export default function ContactForm() {
     }
   }
 
+  if (status === 'ok') {
+    return (
+      <div>
+        <h2>Thank you</h2>
+        <p> Thanks for your message!</p>
+      </div>
+    )
+  } else if (status === 'error') {
+    return (
+      <div>
+        <h2>Sorry</h2>
+        <p>There was a problem sending your message</p>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   return (
     <form name="contact" onSubmit={handleFormSubmit}>
       <input type="hidden" name="form-name" value="contact" />
@@ -101,10 +118,6 @@ export default function ContactForm() {
         <button type="reset" className="btn btn-secondary">
           Clear
         </button>
-        {status === 'ok' && (
-          <div className="alert alert-success">Submitted!</div>
-        )}
-        {status === 'error' && <div className="alert alert-error">{error}</div>}
       </div>
     </form>
   )
