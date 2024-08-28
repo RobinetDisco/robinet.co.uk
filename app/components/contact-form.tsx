@@ -1,15 +1,54 @@
 'use client'
 
+import { FormEvent, useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 
 export default function ContactForm() {
+  const [status, setStatus] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleFormSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    try {
+      setStatus('pending')
+      setError(null)
+      const formData = new FormData(event.target as HTMLFormElement)
+      const res = await fetch('/__forms.html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData as any).toString(),
+      })
+      if (res.status === 200) {
+        setStatus('ok')
+      } else {
+        setStatus('error')
+        setError(`${res.status} ${res.statusText}`)
+      }
+    } catch (e) {
+      setStatus('error')
+      setError(`${e}`)
+    }
+  }
+
+  if (status === 'ok') {
+    return (
+      <div>
+        <h2>Thank you</h2>
+        <p> Thanks for your message!</p>
+      </div>
+    )
+  } else if (status === 'error') {
+    return (
+      <div>
+        <h2>Sorry</h2>
+        <p>There was a problem sending your message</p>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   return (
-    <form
-      name="contact"
-      method="POST"
-      action="/thank-you"
-      data-netlify="true"
-      data-netlify-recaptcha="true">
+    <form name="contact" onSubmit={handleFormSubmit}>
       <input type="hidden" name="form-name" value="contact" />
       <input
         type="hidden"
@@ -70,7 +109,10 @@ export default function ContactForm() {
         />
       </div>
       <div className="mb-3">
-        <button type="submit" className="btn btn-primary me-2">
+        <button
+          type="submit"
+          className="btn btn-primary me-2"
+          disabled={status === 'pending'}>
           Send
         </button>
         <button type="reset" className="btn btn-secondary">
