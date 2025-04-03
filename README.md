@@ -83,7 +83,15 @@ Licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 Inter
 This is not strictly necessary, but you may find it useful to be able to preview your changes before pushing them to Github.
 
 1. Install npm: `apt install npm nodejs`
-1. `git clone git@github.com:RobinetDisco/robinet.co.uk.git`
-1. `cd robinet.co.uk`
-1. `npm install && npm run develop`
-1. Go to [localhost:8000](http://localhost:8000) to view the site. Changes you make to the source files while `npm run develop` is running will automatically be reflected in the browser after a short compliation delay.
+2. `git clone git@github.com:RobinetDisco/robinet.co.uk.git`
+3. `cd robinet.co.uk`
+4. `npm install && npm run develop`
+5. Go to [localhost:8000](http://localhost:8000) to view the site. Changes you make to the source files while `npm run develop` is running will automatically be reflected in the browser after a short compliation delay.
+
+## Update the disco binaries
+
+1. Create a new tag in the Discographer repository:
+    - ```git tag 1.0.2 && git push origin 1.0.2```
+    - (note: DO NOT create the release - it will happen automatically as a github action)
+2. Wait for the github action to build the binaries
+3. Download the created binaries from the Releases page, and add them to public/disco-binaries in this repository
